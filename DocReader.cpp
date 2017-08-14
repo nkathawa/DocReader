@@ -1,10 +1,9 @@
-//libraries
+// libraries
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
 #include <string>
 
-//namespace standard
 using namespace std;
 
 void deleteLastCharacter(string &word)
