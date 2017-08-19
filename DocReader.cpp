@@ -6,32 +6,67 @@
 
 using namespace std;
 
-void deleteLastCharacter(string &word)
+// delete a character from a word if it's not a letter
+void deleteCharacter(string &word, int charIndex)
 {
-	if (word.back() < 65)
+	// if its not a letter
+	if ((word[charIndex] < 65) and (word[charIndex] < 48 || word[charIndex] > 57))
 	{
-		if (word.back() < 48 || word.back() > 57)
+		//erase the character
+		word.erase(charIndex, 1);
+	}
+}
+
+// delete all symbols in a word
+void deleteAllSymbols(string &word)
+{
+	// loop through the word
+	for (int i = 0; i < word.size(); ++i)
+	{
+		// set the size
+		int wordSize = word.size();
+		// delete the character if it should be
+		deleteCharacter(word, i);
+		// if the word got smaller
+		if (word.size() < wordSize)
 		{
-			word.pop_back();
+			// decrement i
+			--i;
 		}
 	}
 }
 
-void lowercaseFirstCharacter(string &word)
+// lowercase a character
+void lowercaseCharacter(string &word, int charIndex)
 {
-	if (word.front() >= 65 && word.front() <= 90)
+	// if its a letter
+	if (word[charIndex] >= 65 and word[charIndex] <= 90)
 	{
-		word.front() += 32;
+		// lowercase the letter
+		word[charIndex] += 32;
 	}
 }
 
-void wordLongestShortest(string &word, string &longest, string &shortest)
+// lowercase all the characters
+void lowercaseAllCharacters(string &word)
+{
+	// loop through the word
+	for (int i = 0; i < word.size(); ++i)
+	{
+		// lowercase the character
+		lowercaseCharacter(word, i);
+	}
+}
+
+// find the shortest and longest word
+void findLongestShortest(string &word, string &longest, string &shortest)
 {
 	//if the word is longer than longest, assign it
 	if (word.size() > longest.size())
 	{
 		longest = word;
 	}
+
 	//if the word is shorter than the shortest, assign it
 	if (word.size() < shortest.size())
 	{
@@ -39,66 +74,59 @@ void wordLongestShortest(string &word, string &longest, string &shortest)
 	}
 }
 
-void numWordsAppearingXTimesOrLess(unordered_map<string, int> &words)
+// find the number of words appearing 10 through 1 times or less
+void numWordsAppearingXTimesOrLess(unordered_map<string, int> &words, ofstream &fout)
 {
-	cout << "Enter a number to find out how many words appeared that many times or less. Type -1 to move on: " << endl;
+	// declare the count variable
 	int count = 0;
-	int number;
-	while (cin >> number)
+
+	fout << "Number of words appearing x times or less:" << endl;
+
+	// loop from 1 to 10, inclusive
+	for (int i = 1; i <= 10; ++i)
 	{
-		if (number == -1)
-		{
-			break;
-		}
+		// loop over the words
 		for (auto it = words.begin(); it != words.end(); ++it)
 		{
-			if (it->second <= number)
+			// if the word appears less than or equal to i times
+			if (it->second <= i)
 			{
+				// increase the count of words that appear x times or less
 				++count;
 			}
 		}
-		cout << "There were " << count << " words that appeared " << number << " or less times." << endl;
+		// output
+		fout << count << " words appeared <= " << i << " times." << endl;
+		// reset the count
 		count = 0;
 	}
 }
 
-void wordAppearsHowManyTimes(unordered_map<string, int> &words, string &word)
+// see how many times each word appears
+void wordAppearsHowManyTimes(unordered_map<string, int> &words, ofstream &fout)
 {
-	cout << "Enter a word to find out how many times it appears. Type QUIT to move on: " << endl;
+	// set the count
 	int count = 0;
-	while (cin >> word)
+
+	fout << "How many times each word appears:" << endl;
+
+	// loop over the words
+	for (auto it = words.begin(); it != words.end(); ++it)	
 	{
-		if (word == "QUIT")
-		{
-			break;
-		}
-		auto it = words.find(word);
-		if (it == words.end())
-		{
-			count = 0;
-		}
-		else
-		{
-			count = words[word];
-		}
-		cout << "The word " << word << " appears " << count << " times." << endl;
+		//print out that the word appears x times
+		fout << it->first << ": " << it->second << endl;
 	}
 }
 
-
-void runProgram(unordered_map<string, int> &words)
+// check if valid file
+void checkFile(ifstream &file, string &filename)
 {
-	ifstream file;
-	string filename;
-
-	//loop for file opening
-	//repeat until valid filename given
 	while (true)
 	{
 		cout << "What is the name of the file? ";
 		cin >> filename;
 		file.open(filename);
-		if (!file.is_open())
+		if (! file.is_open())
 		{
 			cout << "file could not be opened." << endl;
 		}
@@ -107,7 +135,46 @@ void runProgram(unordered_map<string, int> &words)
 			break;
 		}
 	}
+}
 
+// stats output function
+void outputStats(unordered_map<string, int> &words, ofstream &fout, int numWords, 
+	pair<string, int> mostUsed, string longest, string shortest)
+{
+	int wordsSize = words.size();
+	double average = double(numWords) / double(wordsSize);
+
+	// stats begin here
+	fout << "STATS:" << endl;
+	fout << "There are " << words.size() << " unique words in the document." << endl;
+	fout << "There are " << numWords << " words in the document." << endl;
+	fout << "Average number of times any given word appeared: " << average << endl;
+	fout << "Most used word: " << mostUsed.first << " (used " << mostUsed.second << " times)" << endl;
+	fout << "Longest word: " << longest << endl;
+	fout << "Shortest word: " << shortest << endl;
+
+	// loop for how many words appeared x many times or less
+	numWordsAppearingXTimesOrLess(words, fout);
+
+	// loop for looking up a word to see how many times it appears
+	wordAppearsHowManyTimes(words, fout);
+}
+
+// run the program
+void runProgram(unordered_map<string, int> &words)
+{
+	// create the filestream and filename
+	ifstream file;
+	string filename;
+
+	ofstream fout;
+	fout.open("output.txt");
+
+	// loop for file opening
+	// repeat until valid filename given
+	checkFile(file, filename);
+
+	// create the variables
 	string word;
 	pair<string, int> mostUsed;
 	string longest;
@@ -115,14 +182,21 @@ void runProgram(unordered_map<string, int> &words)
 	int numWords = 0;
 
 	int i = 0;
-	//while the file has words
+	// while the file has words
 	while (file >> word)
 	{
 		//increment the number of words in the doc
 		++numWords;
 		
-		deleteLastCharacter(word);
-		lowercaseFirstCharacter(word);
+		// delete all symbols from word and lowercase all letters
+		deleteAllSymbols(word);
+		lowercaseAllCharacters(word);
+
+		// check if the word still has characters
+		if (word.size() == 0)
+		{
+			continue;
+		}
 
 		//if this is the first word
 		if (i == 0)
@@ -137,62 +211,48 @@ void runProgram(unordered_map<string, int> &words)
 		//otherwise
 		else
 		{
-			wordLongestShortest(word, longest, shortest);
+			// find the longest and shortest words
+			findLongestShortest(word, longest, shortest);
 		}
 
+		// iterator point to the word we are looking at
 		auto it = words.find(word);
 
-		//if the word is showing up for the first time
+		// if the word is showing up for the first time
 		if (it == words.end())
 		{
-			//put it in the hash table
+			// put it in the hash table and set it as seen once
 			words.emplace(word, 1);
 		}
-		//otherwise
+		// otherwise
 		else
 		{
-			//increment the number of times it has appeared
+			// increment the number of times it has appeared
 			++words[word];
-			//if this word has appeared more times than the one that has appeared
-			//the most so far
+			// if this word has appeared more times than the one that has appeared
+			// the most so far
 			if (words[word] > mostUsed.second)
 			{
-				//make the word the most appeared so far word
+				// make the word the most appeared so far word
 				mostUsed.first = word;
 				mostUsed.second = words[word];
 			}
 		}
 	}
 
-	//close the file
+	// close the file
 	file.close();
 
-	//stats begin here
-	cout << "-------------- STATS --------------" << endl;
-	cout << "There are " << words.size() << " unique words in the document." << endl;
-	cout << "There are " << numWords << " words in the document." << endl;
-	
-	int wordsSize = words.size();
-	double factor = double(wordsSize) / double(numWords);
-	double average = double(numWords) / double(wordsSize);
-	
-	cout << "The document has a uniqueness factor of " << factor << "." << endl;
-	cout << "Average number of times any given word appeared: " << average << endl;
-	cout << "Most used word: " << mostUsed.first << " (used " << mostUsed.second << " times)" << endl;
-	cout << "Longest word: " << longest << endl;
-	cout << "Shortest word: " << shortest << endl;
+	// output the stats
+	outputStats(words, fout, numWords, mostUsed, longest, shortest);
 
-	//loop for how many words appeared x many times or less
-	numWordsAppearingXTimesOrLess(words);
-
-	//loop for looking up a word to see how many times it appears
-	wordAppearsHowManyTimes(words, word);
+	// close the output file
+	fout.close();
 }
 
 //main
 int main()
 {
-	//declarations
 	unordered_map<string, int> words;
 
 	runProgram(words);
