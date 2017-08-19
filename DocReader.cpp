@@ -10,7 +10,8 @@ using namespace std;
 void deleteCharacter(string &word, int charIndex)
 {
 	// if its not a letter
-	if ((word[charIndex] < 65) and (word[charIndex] < 48 || word[charIndex] > 57))
+	if ((word[charIndex] < 65) and 
+		(word[charIndex] < 48 || word[charIndex] > 57))
 	{
 		//erase the character
 		word.erase(charIndex, 1);
@@ -75,7 +76,8 @@ void findLongestShortest(string &word, string &longest, string &shortest)
 }
 
 // find the number of words appearing 10 through 1 times or less
-void numWordsAppearingXTimesOrLess(unordered_map<string, int> &words, ofstream &fout)
+void numWordsAppearingXTimesOrLess(unordered_map<string, int> &words, 
+	ofstream &fout)
 {
 	// declare the count variable
 	int count = 0;
@@ -138,18 +140,21 @@ void checkFile(ifstream &file, string &filename)
 }
 
 // stats output function
-void outputStats(unordered_map<string, int> &words, ofstream &fout, int numWords, 
-	pair<string, int> mostUsed, string longest, string shortest)
+void outputStats(unordered_map<string, int> &words, ofstream &fout, 
+	int numWords, pair<string, int> mostUsed, string longest, string shortest)
 {
 	int wordsSize = words.size();
 	double average = double(numWords) / double(wordsSize);
 
 	// stats begin here
 	fout << "STATS:" << endl;
-	fout << "There are " << words.size() << " unique words in the document." << endl;
+	fout << "There are " << words.size() << " unique words in the document." 
+		<< endl;
 	fout << "There are " << numWords << " words in the document." << endl;
-	fout << "Average number of times any given word appeared: " << average << endl;
-	fout << "Most used word: " << mostUsed.first << " (used " << mostUsed.second << " times)" << endl;
+	fout << "Average number of times any given word appeared: " << average 
+		<< endl;
+	fout << "Most used word: " << mostUsed.first << " (used " 
+		<< mostUsed.second << " times)" << endl;
 	fout << "Longest word: " << longest << endl;
 	fout << "Shortest word: " << shortest << endl;
 
@@ -229,8 +234,8 @@ void runProgram(unordered_map<string, int> &words)
 		{
 			// increment the number of times it has appeared
 			++words[word];
-			// if this word has appeared more times than the one that has appeared
-			// the most so far
+			// if this word has appeared more times than the one that 
+			// has appeared the most so far
 			if (words[word] > mostUsed.second)
 			{
 				// make the word the most appeared so far word
